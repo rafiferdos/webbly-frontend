@@ -32,21 +32,23 @@ export function WorkspaceExplorer() {
   const breadcrumb = getBreadcrumb(items, selectedFolderId)
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen flex-col md:flex-row">
       <UnsavedChangesDialog />
 
-      <aside className="w-64 shrink-0 border-r p-3">
-        <WorkspaceTree />
+      <aside className="w-full shrink-0 border-b md:w-64 md:border-r md:border-b-0">
+        <div className="max-h-56 overflow-auto p-3 md:max-h-screen">
+          <WorkspaceTree />
+        </div>
       </aside>
 
-      <main className="min-w-0 flex-1 p-6">
+      <main className="min-w-0 flex-1 overflow-x-hidden p-4 sm:p-6">
         <div className="mb-5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           {breadcrumb.map((item, index) => (
-            <div key={item.id} className="flex items-center gap-2">
+            <div key={item.id} className="flex min-w-0 items-center gap-2">
               <button
                 type="button"
                 onClick={() => openFolder(item.id)}
-                className="transition-colors hover:text-foreground"
+                className="max-w-40 truncate transition-colors hover:text-foreground sm:max-w-none"
               >
                 {item.name}
               </button>
@@ -57,7 +59,7 @@ export function WorkspaceExplorer() {
         </div>
 
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <CreateItemDialog type="folder" />
             <CreateItemDialog type="file" />
           </div>
@@ -72,7 +74,7 @@ export function WorkspaceExplorer() {
             {children.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center rounded-md border transition-colors hover:bg-muted"
+                className="flex min-w-0 items-center rounded-md border transition-colors hover:bg-muted"
               >
                 <button
                   type="button"
@@ -86,12 +88,14 @@ export function WorkspaceExplorer() {
                   }}
                   className="flex min-w-0 flex-1 items-center gap-2 p-3 text-left"
                 >
-                  <span>{item.type === "folder" ? "📁" : "📄"}</span>
+                  <span className="shrink-0">
+                    {item.type === "folder" ? "📁" : "📄"}
+                  </span>
 
                   <span className="truncate">{item.name}</span>
                 </button>
 
-                <div className="flex items-center gap-1 pr-2">
+                <div className="flex shrink-0 items-center gap-1 pr-2">
                   <RenameItemDialog item={item} />
 
                   <DeleteItemDialog item={item} />
@@ -100,7 +104,7 @@ export function WorkspaceExplorer() {
             ))}
           </div>
         ) : (
-          <div className="rounded-md border border-dashed p-8 text-center">
+          <div className="rounded-md border border-dashed p-6 text-center sm:p-8">
             <p className="text-sm text-muted-foreground">
               This folder is empty.
             </p>
