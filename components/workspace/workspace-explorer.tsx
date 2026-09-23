@@ -4,8 +4,13 @@ import { getBreadcrumb, getChildren } from "@/lib/workspace-utils"
 import { useWorkspaceStore } from "@/store/workspace-store"
 import { WorkspaceTree } from "./workspace-tree"
 import { FileEditor } from "./file-editor"
+import { useEffect } from "react"
 
 export function WorkspaceExplorer() {
+  useEffect(() => {
+    useWorkspaceStore.persist.rehydrate()
+  }, [])
+
   const items = useWorkspaceStore((state) => state.items)
 
   const selectedFolderId = useWorkspaceStore((state) => state.selectedFolderId)
