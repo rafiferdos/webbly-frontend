@@ -10,6 +10,7 @@ import { CreateItemDialog } from "./create-item-dialog"
 import { DeleteItemDialog } from "./delete-item-dialog"
 import { FileEditor } from "./file-editor"
 import { RenameItemDialog } from "./rename-item-dialog"
+import { UnsavedChangesDialog } from "./unsaved-changes-dialog"
 import { WorkspaceSearch } from "./workspace-search"
 import { WorkspaceTree } from "./workspace-tree"
 
@@ -24,13 +25,7 @@ export function WorkspaceExplorer() {
 
   const openedFileId = useWorkspaceStore((state) => state.openedFileId)
 
-  const setSelectedFolderId = useWorkspaceStore(
-    (state) => state.setSelectedFolderId
-  )
-
-  const setOpenedFileId = useWorkspaceStore((state) => state.setOpenedFileId)
-
-  const { openFolder } = useWorkspaceNavigation()
+  const { openFolder, openItem } = useWorkspaceNavigation()
 
   const children = getChildren(items, selectedFolderId)
 
@@ -38,6 +33,8 @@ export function WorkspaceExplorer() {
 
   return (
     <div className="flex min-h-screen">
+      <UnsavedChangesDialog />
+
       <aside className="w-64 shrink-0 border-r p-3">
         <WorkspaceTree />
       </aside>
@@ -81,11 +78,11 @@ export function WorkspaceExplorer() {
                   type="button"
                   onClick={() => {
                     if (item.type === "folder") {
-                      setSelectedFolderId(item.id)
+                      openFolder(item.id)
                       return
                     }
 
-                    setOpenedFileId(item.id)
+                    openItem(item.id)
                   }}
                   className="flex min-w-0 flex-1 items-center gap-2 p-3 text-left"
                 >
