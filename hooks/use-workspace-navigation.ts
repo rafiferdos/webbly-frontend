@@ -11,33 +11,39 @@ export function useWorkspaceNavigation() {
     (state) => state.setHasUnsavedChanges
   )
 
+  const setPendingNavigation = useWorkspaceStore(
+    (state) => state.setPendingNavigation
+  )
+
   const setSelectedFolderId = useWorkspaceStore(
     (state) => state.setSelectedFolderId
   )
 
   const navigateToItem = useWorkspaceStore((state) => state.navigateToItem)
 
-  const confirmNavigation = () => {
-    if (!hasUnsavedChanges) {
-      return true
-    }
-
-    return window.confirm(
-      "You have unsaved changes. Discard them and continue?"
-    )
-  }
-
   const openFolder = (id: string) => {
-    if (!confirmNavigation()) {
-      return
+    if (hasUnsavedChanges) {
+      setPendingNavigation({
+        type: "folder",
+        id,
+      })
+
+      return false
     }
 
     setHasUnsavedChanges(false)
     setSelectedFolderId(id)
+
+    return true
   }
 
   const openItem = (id: string) => {
-    if (!confirmNavigation()) {
+    if (hasUnsavedChanges) {
+      setPendingNavigation({
+        type: "item",
+        id,
+      })
+
       return false
     }
 
