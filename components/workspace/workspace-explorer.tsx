@@ -1,10 +1,13 @@
 "use client"
 
+import { useEffect } from "react"
+
 import { getBreadcrumb, getChildren } from "@/lib/workspace-utils"
 import { useWorkspaceStore } from "@/store/workspace-store"
-import { WorkspaceTree } from "./workspace-tree"
+
+import { CreateItemDialog } from "./create-item-dialog"
 import { FileEditor } from "./file-editor"
-import { useEffect } from "react"
+import { WorkspaceTree } from "./workspace-tree"
 
 export function WorkspaceExplorer() {
   useEffect(() => {
@@ -15,15 +18,16 @@ export function WorkspaceExplorer() {
 
   const selectedFolderId = useWorkspaceStore((state) => state.selectedFolderId)
 
+  const openedFileId = useWorkspaceStore((state) => state.openedFileId)
+
   const setSelectedFolderId = useWorkspaceStore(
     (state) => state.setSelectedFolderId
   )
 
-  const openedFileId = useWorkspaceStore((state) => state.openedFileId)
-
   const setOpenedFileId = useWorkspaceStore((state) => state.setOpenedFileId)
 
   const children = getChildren(items, selectedFolderId)
+
   const breadcrumb = getBreadcrumb(items, selectedFolderId)
 
   return (
@@ -32,13 +36,14 @@ export function WorkspaceExplorer() {
         <WorkspaceTree />
       </aside>
 
-      <main className="flex-1 p-6">
-        <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+      <main className="min-w-0 flex-1 p-6">
+        <div className="mb-5 flex items-center gap-2 text-sm text-muted-foreground">
           {breadcrumb.map((item, index) => (
             <div key={item.id} className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => setSelectedFolderId(item.id)}
-                className="hover:text-foreground"
+                className="transition-colors hover:text-foreground"
               >
                 {item.name}
               </button>
@@ -48,25 +53,40 @@ export function WorkspaceExplorer() {
           ))}
         </div>
 
+        <div className="mb-5 flex items-center gap-2">
+          <CreateItemDialog type="folder" />
+          <CreateItemDialog type="file" />
+        </div>
+
         {openedFileId ? (
           <FileEditor />
-        ) : (
+        ) : children.length > 0 ? (
           <div className="space-y-2">
             {children.map((item) => (
-              <div
+              <button
+                type="button"
                 key={item.id}
                 onClick={() => {
                   if (item.type === "folder") {
                     setSelectedFolderId(item.id)
-                  } else {
-                    setOpenedFileId(item.id)
+                    return
                   }
+
+                  setOpenedFileId(item.id)
                 }}
-                className="cursor-pointer rounded-md border p-3 hover:bg-muted"
+                className="flex w-full cursor-pointer items-center gap-2 rounded-md border p-3 text-left transition-colors hover:bg-muted"
               >
-                {item.type === "folder" ? "📁" : "📄"} {item.name}
-              </div>
+                <span>{item.type === "folder" ? "📁" : "📄"}</span>
+
+                <span>{item.name}</span>
+              </button>
             ))}
+          </div>
+        ) : (
+          <div className="rounded-md border border-dashed p-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              This folder is empty.
+            </p>
           </div>
         )}
       </main>
