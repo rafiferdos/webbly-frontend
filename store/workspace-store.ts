@@ -21,10 +21,12 @@ type TWorkspaceStore = {
   openedFileId: string | null
   expandedFolderIds: string[]
   hasUnsavedChanges: boolean
+  pendingNavigation: TPendingNavigation
 
   setSelectedFolderId: (id: string) => void
   setOpenedFileId: (id: string | null) => void
   setHasUnsavedChanges: (value: boolean) => void
+  setPendingNavigation: (navigation: TPendingNavigation) => void
 
   toggleFolder: (id: string) => void
   navigateToItem: (id: string) => void
@@ -50,6 +52,7 @@ export const useWorkspaceStore = create<TWorkspaceStore>()(
       openedFileId: null,
       expandedFolderIds: ["workspace"],
       hasUnsavedChanges: false,
+      pendingNavigation: null,
 
       setSelectedFolderId: (id) => {
         set({
@@ -67,6 +70,12 @@ export const useWorkspaceStore = create<TWorkspaceStore>()(
       setHasUnsavedChanges: (value) => {
         set({
           hasUnsavedChanges: value,
+        })
+      },
+
+      setPendingNavigation: (navigation) => {
+        set({
+          pendingNavigation: navigation,
         })
       },
 
@@ -278,6 +287,10 @@ export const useWorkspaceStore = create<TWorkspaceStore>()(
           hasUnsavedChanges: openedFileWasDeleted
             ? false
             : state.hasUnsavedChanges,
+
+          pendingNavigation: openedFileWasDeleted
+            ? null
+            : state.pendingNavigation,
 
           expandedFolderIds: state.expandedFolderIds.filter(
             (folderId) => !idsToDelete.has(folderId)
