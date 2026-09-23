@@ -71,7 +71,7 @@ export function CreateItemDialog({ type }: CreateItemDialogProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isFolder ? "Create folder" : "Create text file"}
+            {isFolder ? "Create folder" : "Create file"}
           </DialogTitle>
 
           <DialogDescription>
@@ -99,12 +99,6 @@ export function CreateItemDialog({ type }: CreateItemDialogProps) {
           />
 
           {error && <p className="text-sm text-destructive">{error}</p>}
-
-          {!isFolder && (
-            <p className="text-xs text-muted-foreground">
-              .txt will be added automatically.
-            </p>
-          )}
         </div>
 
         <DialogFooter>
