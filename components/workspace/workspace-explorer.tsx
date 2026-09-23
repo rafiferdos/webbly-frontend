@@ -13,6 +13,10 @@ export function WorkspaceExplorer() {
     (state) => state.setSelectedFolderId
   )
 
+  const openedFileId = useWorkspaceStore((state) => state.openedFileId)
+
+  const setOpenedFileId = useWorkspaceStore((state) => state.setOpenedFileId)
+
   const children = getChildren(items, selectedFolderId)
   const breadcrumb = getBreadcrumb(items, selectedFolderId)
 
@@ -45,6 +49,8 @@ export function WorkspaceExplorer() {
               onClick={() => {
                 if (item.type === "folder") {
                   setSelectedFolderId(item.id)
+                } else {
+                  setOpenedFileId(item.id)
                 }
               }}
               className={`rounded-md border p-3 ${
