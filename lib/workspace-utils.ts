@@ -25,3 +25,15 @@ export const getBreadcrumb = (
 
   return breadcrumb
 }
+
+export const getDescendantIds = (
+  items: TWorkspace[],
+  parentId: string
+): string[] => {
+  const children = items.filter((item) => item.parentId === parentId)
+
+  return children.flatMap((child) => [
+    child.id,
+    ...getDescendantIds(items, child.id),
+  ])
+}
