@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 import { FileText, Folder, Search } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
+import { useWorkspaceNavigation } from "@/hooks/use-workspace-navigation"
 import { getItemPath } from "@/lib/workspace-utils"
 import { useWorkspaceStore } from "@/store/workspace-store"
 
@@ -12,7 +13,7 @@ export function WorkspaceSearch() {
 
   const items = useWorkspaceStore((state) => state.items)
 
-  const navigateToItem = useWorkspaceStore((state) => state.navigateToItem)
+  const { openItem } = useWorkspaceNavigation()
 
   const normalizedQuery = query.trim().toLowerCase()
 
@@ -29,8 +30,11 @@ export function WorkspaceSearch() {
   }, [items, normalizedQuery])
 
   const handleResultClick = (id: string) => {
-    navigateToItem(id)
-    setQuery("")
+    const navigated = openItem(id)
+
+    if (navigated) {
+      setQuery("")
+    }
   }
 
   return (
