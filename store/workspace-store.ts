@@ -94,7 +94,9 @@ export const useWorkspaceStore = create<TWorkspaceStore>()(
           (workspaceItem) => workspaceItem.id === id
         )
 
-        if (!item) return
+        if (!item) {
+          return
+        }
 
         const ancestorFolderIds = getAncestorFolderIds(state.items, item.id)
 
@@ -145,27 +147,22 @@ export const useWorkspaceStore = create<TWorkspaceStore>()(
           }
         }
 
-        const finalName =
-          type === "file" && !trimmedName.toLowerCase().endsWith(".txt")
-            ? `${trimmedName}.txt`
-            : trimmedName
-
         const duplicateExists = get().items.some(
           (item) =>
             item.parentId === parentId &&
-            item.name.toLowerCase() === finalName.toLowerCase()
+            item.name.toLowerCase() === trimmedName.toLowerCase()
         )
 
         if (duplicateExists) {
           return {
             success: false,
-            error: `"${finalName}" already exists in this folder.`,
+            error: `"${trimmedName}" already exists in this folder.`,
           }
         }
 
         const newItem: TWorkspace = {
           id: crypto.randomUUID(),
-          name: finalName,
+          name: trimmedName,
           type,
           parentId,
           ...(type === "file" ? { content: "" } : {}),
@@ -206,22 +203,17 @@ export const useWorkspaceStore = create<TWorkspaceStore>()(
           }
         }
 
-        const finalName =
-          item.type === "file" && !trimmedName.toLowerCase().endsWith(".txt")
-            ? `${trimmedName}.txt`
-            : trimmedName
-
         const duplicateExists = get().items.some(
           (workspaceItem) =>
             workspaceItem.id !== id &&
             workspaceItem.parentId === item.parentId &&
-            workspaceItem.name.toLowerCase() === finalName.toLowerCase()
+            workspaceItem.name.toLowerCase() === trimmedName.toLowerCase()
         )
 
         if (duplicateExists) {
           return {
             success: false,
-            error: `"${finalName}" already exists in this folder.`,
+            error: `"${trimmedName}" already exists in this folder.`,
           }
         }
 
@@ -230,7 +222,7 @@ export const useWorkspaceStore = create<TWorkspaceStore>()(
             workspaceItem.id === id
               ? {
                   ...workspaceItem,
-                  name: finalName,
+                  name: trimmedName,
                 }
               : workspaceItem
           ),
