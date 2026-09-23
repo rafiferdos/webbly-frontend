@@ -2,6 +2,7 @@
 
 import { ChevronDown, ChevronRight, Folder } from "lucide-react"
 
+import { useWorkspaceNavigation } from "@/hooks/use-workspace-navigation"
 import { getChildren } from "@/lib/workspace-utils"
 import { useWorkspaceStore } from "@/store/workspace-store"
 
@@ -12,14 +13,16 @@ type WorkspaceTreeItemProps = {
 
 function WorkspaceTreeItem({ folderId, depth = 0 }: WorkspaceTreeItemProps) {
   const items = useWorkspaceStore((state) => state.items)
+
   const selectedFolderId = useWorkspaceStore((state) => state.selectedFolderId)
+
   const expandedFolderIds = useWorkspaceStore(
     (state) => state.expandedFolderIds
   )
-  const setSelectedFolderId = useWorkspaceStore(
-    (state) => state.setSelectedFolderId
-  )
+
   const toggleFolder = useWorkspaceStore((state) => state.toggleFolder)
+
+  const { openFolder } = useWorkspaceNavigation()
 
   const folder = items.find((item) => item.id === folderId)
 
@@ -32,7 +35,9 @@ function WorkspaceTreeItem({ folderId, depth = 0 }: WorkspaceTreeItemProps) {
   )
 
   const isExpanded = expandedFolderIds.includes(folder.id)
+
   const isSelected = selectedFolderId === folder.id
+
   const hasChildren = childFolders.length > 0
 
   return (
@@ -67,10 +72,11 @@ function WorkspaceTreeItem({ folderId, depth = 0 }: WorkspaceTreeItemProps) {
 
         <button
           type="button"
-          onClick={() => setSelectedFolderId(folder.id)}
+          onClick={() => openFolder(folder.id)}
           className="flex flex-1 items-center gap-2 text-left"
         >
           <Folder className="size-4" />
+
           <span className="truncate">{folder.name}</span>
         </button>
       </div>
