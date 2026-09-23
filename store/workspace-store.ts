@@ -10,6 +10,11 @@ type TActionResult = {
   error?: string
 }
 
+type TPendingNavigation = {
+  type: "folder" | "item"
+  id: string
+} | null
+
 type TWorkspaceStore = {
   items: TWorkspace[]
   selectedFolderId: string
