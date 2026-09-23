@@ -6,3 +6,22 @@ export const getChildren = (
 ): TWorkspace[] => {
   return items.filter((item) => item.parentId === parentId)
 }
+
+export const getBreadcrumb = (
+  items: TWorkspace[],
+  folderId: string
+): TWorkspace[] => {
+  const breadcrumb: TWorkspace[] = []
+
+  let current = items.find((item) => item.id === folderId)
+
+  while (current) {
+    breadcrumb.unshift(current)
+
+    if (!current.parentId) break
+
+    current = items.find((item) => item.id === current?.parentId)
+  }
+
+  return breadcrumb
+}
