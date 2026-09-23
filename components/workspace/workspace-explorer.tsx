@@ -6,6 +6,7 @@ import { getBreadcrumb, getChildren } from "@/lib/workspace-utils"
 import { useWorkspaceStore } from "@/store/workspace-store"
 
 import { CreateItemDialog } from "./create-item-dialog"
+import { DeleteItemDialog } from "./delete-item-dialog"
 import { FileEditor } from "./file-editor"
 import { RenameItemDialog } from "./rename-item-dialog"
 import { WorkspaceTree } from "./workspace-tree"
@@ -85,8 +86,10 @@ export function WorkspaceExplorer() {
                   <span className="truncate">{item.name}</span>
                 </button>
 
-                <div className="pr-2">
+                <div className="flex items-center gap-1 pr-2">
                   <RenameItemDialog item={item} />
+
+                  <DeleteItemDialog item={item} />
                 </div>
               </div>
             ))}
