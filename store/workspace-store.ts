@@ -12,6 +12,7 @@ type TWorkspaceStore = {
   setSelectedFolderId: (id: string) => void
   setOpenedFileId: (id: string | null) => void
   toggleFolder: (id: string) => void
+  updateFileContent: (id: string, content: string) => void
 }
 
 export const useWorkspaceStore = create<TWorkspaceStore>((set) => ({
@@ -36,6 +37,19 @@ export const useWorkspaceStore = create<TWorkspaceStore>((set) => ({
       expandedFolderIds: state.expandedFolderIds.includes(id)
         ? state.expandedFolderIds.filter((folderId) => folderId !== id)
         : [...state.expandedFolderIds, id],
+    }))
+  },
+
+  updateFileContent: (id, content) => {
+    set((state) => ({
+      items: state.items.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              content,
+            }
+          : item
+      ),
     }))
   },
 }))
