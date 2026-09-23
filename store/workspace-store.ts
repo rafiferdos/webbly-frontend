@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware"
 import { initialWorkspace } from "@/lib/workspace-data"
 import type { TWorkspace, TWorkspaceType } from "@/types/workspace"
 
-type TCreateItemResult = {
+type TActionResult = {
   success: boolean
   error?: string
 }
@@ -24,7 +24,9 @@ type TWorkspaceStore = {
     parentId: string,
     name: string,
     type: TWorkspaceType
-  ) => TCreateItemResult
+  ) => TActionResult
+
+  renameItem: (id: string, name: string) => TActionResult
 }
 
 export const useWorkspaceStore = create<TWorkspaceStore>()(
@@ -109,6 +111,62 @@ export const useWorkspaceStore = create<TWorkspaceStore>()(
             type === "folder" && !state.expandedFolderIds.includes(parentId)
               ? [...state.expandedFolderIds, parentId]
               : state.expandedFolderIds,
+        }))
+
+        return {
+          success: true,
+        }
+      },
+
+      renameItem: (id, name) => {
+        const item = get().items.find(
+          (workspaceItem) => workspaceItem.id === id
+        )
+
+        if (!item) {
+          return {
+            success: false,
+            error: "Item not found.",
+          }
+        }
+
+        const trimmedName = name.trim()
+
+        if (!trimmedName) {
+          return {
+            success: false,
+            error: "Name cannot be empty.",
+          }
+        }
+
+        const finalName =
+          item.type === "file" && !trimmedName.toLowerCase().endsWith(".txt")
+            ? `${trimmedName}.txt`
+            : trimmedName
+
+        const duplicateExists = get().items.some(
+          (workspaceItem) =>
+            workspaceItem.id !== id &&
+            workspaceItem.parentId === item.parentId &&
+            workspaceItem.name.toLowerCase() === finalName.toLowerCase()
+        )
+
+        if (duplicateExists) {
+          return {
+            success: false,
+            error: `"${finalName}" already exists in this folder.`,
+          }
+        }
+
+        set((state) => ({
+          items: state.items.map((workspaceItem) =>
+            workspaceItem.id === id
+              ? {
+                  ...workspaceItem,
+                  name: finalName,
+                }
+              : workspaceItem
+          ),
         }))
 
         return {
