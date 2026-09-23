@@ -37,3 +37,42 @@ export const getDescendantIds = (
     ...getDescendantIds(items, child.id),
   ])
 }
+
+export const getAncestorFolderIds = (
+  items: TWorkspace[],
+  itemId: string
+): string[] => {
+  const ancestorIds: string[] = []
+
+  let current = items.find((item) => item.id === itemId)
+
+  while (current?.parentId) {
+    const parent = items.find((item) => item.id === current?.parentId)
+
+    if (!parent) break
+
+    if (parent.type === "folder") {
+      ancestorIds.unshift(parent.id)
+    }
+
+    current = parent
+  }
+
+  return ancestorIds
+}
+
+export const getItemPath = (items: TWorkspace[], itemId: string): string => {
+  const path: string[] = []
+
+  let current = items.find((item) => item.id === itemId)
+
+  while (current) {
+    path.unshift(current.name)
+
+    if (!current.parentId) break
+
+    current = items.find((item) => item.id === current?.parentId)
+  }
+
+  return path.join(" / ")
+}
