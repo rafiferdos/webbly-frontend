@@ -7,6 +7,7 @@ import { useWorkspaceStore } from "@/store/workspace-store"
 
 import { CreateItemDialog } from "./create-item-dialog"
 import { FileEditor } from "./file-editor"
+import { RenameItemDialog } from "./rename-item-dialog"
 import { WorkspaceTree } from "./workspace-tree"
 
 export function WorkspaceExplorer() {
@@ -63,23 +64,31 @@ export function WorkspaceExplorer() {
         ) : children.length > 0 ? (
           <div className="space-y-2">
             {children.map((item) => (
-              <button
-                type="button"
+              <div
                 key={item.id}
-                onClick={() => {
-                  if (item.type === "folder") {
-                    setSelectedFolderId(item.id)
-                    return
-                  }
-
-                  setOpenedFileId(item.id)
-                }}
-                className="flex w-full cursor-pointer items-center gap-2 rounded-md border p-3 text-left transition-colors hover:bg-muted"
+                className="flex items-center rounded-md border transition-colors hover:bg-muted"
               >
-                <span>{item.type === "folder" ? "📁" : "📄"}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (item.type === "folder") {
+                      setSelectedFolderId(item.id)
+                      return
+                    }
 
-                <span>{item.name}</span>
-              </button>
+                    setOpenedFileId(item.id)
+                  }}
+                  className="flex min-w-0 flex-1 items-center gap-2 p-3 text-left"
+                >
+                  <span>{item.type === "folder" ? "📁" : "📄"}</span>
+
+                  <span className="truncate">{item.name}</span>
+                </button>
+
+                <div className="pr-2">
+                  <RenameItemDialog item={item} />
+                </div>
+              </div>
             ))}
           </div>
         ) : (
