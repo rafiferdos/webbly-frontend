@@ -3,6 +3,7 @@
 import { getBreadcrumb, getChildren } from "@/lib/workspace-utils"
 import { useWorkspaceStore } from "@/store/workspace-store"
 import { WorkspaceTree } from "./workspace-tree"
+import { FileEditor } from "./file-editor"
 
 export function WorkspaceExplorer() {
   const items = useWorkspaceStore((state) => state.items)
@@ -42,27 +43,27 @@ export function WorkspaceExplorer() {
           ))}
         </div>
 
-        <div className="space-y-2">
-          {children.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => {
-                if (item.type === "folder") {
-                  setSelectedFolderId(item.id)
-                } else {
-                  setOpenedFileId(item.id)
-                }
-              }}
-              className={`rounded-md border p-3 ${
-                item.type === "folder"
-                  ? "cursor-pointer hover:bg-muted"
-                  : "cursor-default"
-              }`}
-            >
-              {item.type === "folder" ? "📁" : "📄"} {item.name}
-            </div>
-          ))}
-        </div>
+        {openedFileId ? (
+          <FileEditor />
+        ) : (
+          <div className="space-y-2">
+            {children.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => {
+                  if (item.type === "folder") {
+                    setSelectedFolderId(item.id)
+                  } else {
+                    setOpenedFileId(item.id)
+                  }
+                }}
+                className="cursor-pointer rounded-md border p-3 hover:bg-muted"
+              >
+                {item.type === "folder" ? "📁" : "📄"} {item.name}
+              </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   )
