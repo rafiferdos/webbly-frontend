@@ -2,10 +2,8 @@
 
 import { useEffect } from "react"
 
-import {
-  getBreadcrumb,
-  getChildren,
-} from "@/lib/workspace-utils"
+import { useWorkspaceNavigation } from "@/hooks/use-workspace-navigation"
+import { getBreadcrumb, getChildren } from "@/lib/workspace-utils"
 import { useWorkspaceStore } from "@/store/workspace-store"
 
 import { CreateItemDialog } from "./create-item-dialog"
@@ -20,39 +18,23 @@ export function WorkspaceExplorer() {
     useWorkspaceStore.persist.rehydrate()
   }, [])
 
-  const items = useWorkspaceStore(
-    (state) => state.items
+  const items = useWorkspaceStore((state) => state.items)
+
+  const selectedFolderId = useWorkspaceStore((state) => state.selectedFolderId)
+
+  const openedFileId = useWorkspaceStore((state) => state.openedFileId)
+
+  const setSelectedFolderId = useWorkspaceStore(
+    (state) => state.setSelectedFolderId
   )
 
-  const selectedFolderId =
-    useWorkspaceStore(
-      (state) => state.selectedFolderId
-    )
+  const setOpenedFileId = useWorkspaceStore((state) => state.setOpenedFileId)
 
-  const openedFileId = useWorkspaceStore(
-    (state) => state.openedFileId
-  )
+  const { openFolder } = useWorkspaceNavigation()
 
-  const setSelectedFolderId =
-    useWorkspaceStore(
-      (state) =>
-        state.setSelectedFolderId
-    )
+  const children = getChildren(items, selectedFolderId)
 
-  const setOpenedFileId =
-    useWorkspaceStore(
-      (state) => state.setOpenedFileId
-    )
-
-  const children = getChildren(
-    items,
-    selectedFolderId
-  )
-
-  const breadcrumb = getBreadcrumb(
-    items,
-    selectedFolderId
-  )
+  const breadcrumb = getBreadcrumb(items, selectedFolderId)
 
   return (
     <div className="flex min-h-screen">
@@ -62,30 +44,19 @@ export function WorkspaceExplorer() {
 
       <main className="min-w-0 flex-1 p-6">
         <div className="mb-5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          {breadcrumb.map(
-            (item, index) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-2"
+          {breadcrumb.map((item, index) => (
+            <div key={item.id} className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => openFolder(item.id)}
+                className="transition-colors hover:text-foreground"
               >
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSelectedFolderId(
-                      item.id
-                    )
-                  }
-                  className="transition-colors hover:text-foreground"
-                >
-                  {item.name}
-                </button>
+                {item.name}
+              </button>
 
-                {index <
-                  breadcrumb.length -
-                    1 && <span>/</span>}
-              </div>
-            )
-          )}
+              {index < breadcrumb.length - 1 && <span>/</span>}
+            </div>
+          ))}
         </div>
 
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -99,58 +70,37 @@ export function WorkspaceExplorer() {
 
         {openedFileId ? (
           <FileEditor />
-        ) : children.length >
-          0 ? (
+        ) : children.length > 0 ? (
           <div className="space-y-2">
-            {children.map(
-              (item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center rounded-md border transition-colors hover:bg-muted"
+            {children.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center rounded-md border transition-colors hover:bg-muted"
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (item.type === "folder") {
+                      setSelectedFolderId(item.id)
+                      return
+                    }
+
+                    setOpenedFileId(item.id)
+                  }}
+                  className="flex min-w-0 flex-1 items-center gap-2 p-3 text-left"
                 >
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (
-                        item.type ===
-                        "folder"
-                      ) {
-                        setSelectedFolderId(
-                          item.id
-                        )
-                        return
-                      }
+                  <span>{item.type === "folder" ? "📁" : "📄"}</span>
 
-                      setOpenedFileId(
-                        item.id
-                      )
-                    }}
-                    className="flex min-w-0 flex-1 items-center gap-2 p-3 text-left"
-                  >
-                    <span>
-                      {item.type ===
-                      "folder"
-                        ? "📁"
-                        : "📄"}
-                    </span>
+                  <span className="truncate">{item.name}</span>
+                </button>
 
-                    <span className="truncate">
-                      {item.name}
-                    </span>
-                  </button>
+                <div className="flex items-center gap-1 pr-2">
+                  <RenameItemDialog item={item} />
 
-                  <div className="flex items-center gap-1 pr-2">
-                    <RenameItemDialog
-                      item={item}
-                    />
-
-                    <DeleteItemDialog
-                      item={item}
-                    />
-                  </div>
+                  <DeleteItemDialog item={item} />
                 </div>
-              )
-            )}
+              </div>
+            ))}
           </div>
         ) : (
           <div className="rounded-md border border-dashed p-8 text-center">
