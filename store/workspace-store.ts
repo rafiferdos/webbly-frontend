@@ -1,4 +1,5 @@
 import { create } from "zustand"
+import { persist } from "zustand/middleware"
 
 import { initialWorkspace } from "@/lib/workspace-data"
 import type { TWorkspace } from "@/types/workspace"
@@ -15,41 +16,56 @@ type TWorkspaceStore = {
   updateFileContent: (id: string, content: string) => void
 }
 
-export const useWorkspaceStore = create<TWorkspaceStore>((set) => ({
-  items: initialWorkspace,
-  selectedFolderId: "workspace",
-  openedFileId: null,
-  expandedFolderIds: ["workspace"],
-
-  setSelectedFolderId: (id) => {
-    set({
-      selectedFolderId: id,
+export const useWorkspaceStore = create<TWorkspaceStore>()(
+  persist(
+    (set) => ({
+      items: initialWorkspace,
+      selectedFolderId: "workspace",
       openedFileId: null,
-    })
-  },
+      expandedFolderIds: ["workspace"],
 
-  setOpenedFileId: (id) => {
-    set({ openedFileId: id })
-  },
+      setSelectedFolderId: (id) => {
+        set({
+          selectedFolderId: id,
+          openedFileId: null,
+        })
+      },
 
-  toggleFolder: (id) => {
-    set((state) => ({
-      expandedFolderIds: state.expandedFolderIds.includes(id)
-        ? state.expandedFolderIds.filter((folderId) => folderId !== id)
-        : [...state.expandedFolderIds, id],
-    }))
-  },
+      setOpenedFileId: (id) => {
+        set({ openedFileId: id })
+      },
 
-  updateFileContent: (id, content) => {
-    set((state) => ({
-      items: state.items.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              content,
-            }
-          : item
-      ),
-    }))
-  },
-}))
+      toggleFolder: (id) => {
+        set((state) => ({
+          expandedFolderIds: state.expandedFolderIds.includes(id)
+            ? state.expandedFolderIds.filter(
+                (folderId) => folderId !== id
+              )
+            : [...state.expandedFolderIds, id],
+        }))
+      },
+
+      updateFileContent: (id, content) => {
+        set((state) => ({
+          items: state.items.map((item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  content,
+                }
+              : item
+          ),
+        }))
+      },
+    }),
+    {
+      name: "workspace-storage",
+
+      partialize: (state) => ({
+        items: state.items,
+      }),
+
+      skipHydration: true,
+    }
+  )
+)
